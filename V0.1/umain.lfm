@@ -1,0 +1,294 @@
+object frmPrincipale: TfrmPrincipale
+  Left = 829
+  Height = 771
+  Top = -876
+  Width = 1053
+  Caption = 'Atlas Polaris - éditeur'
+  ClientHeight = 771
+  ClientWidth = 1053
+  Constraints.MinHeight = 768
+  Constraints.MinWidth = 1024
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  LCLVersion = '2.2.6.0'
+  object pcDetails: TPageControl
+    Left = 4
+    Height = 124
+    Top = 624
+    Width = 1045
+    ActivePage = TabSheet1
+    Align = alBottom
+    BorderSpacing.Left = 4
+    BorderSpacing.Right = 4
+    HotTrack = True
+    TabIndex = 0
+    TabOrder = 0
+    object TabSheet1: TTabSheet
+      Caption = 'Eléments de base'
+      ClientHeight = 96
+      ClientWidth = 1037
+      object Label1: TLabel
+        Left = 8
+        Height = 15
+        Top = 20
+        Width = 27
+        Caption = 'Nom'
+        ParentColor = False
+      end
+      object Edit1: TEdit
+        Left = 104
+        Height = 23
+        Top = 16
+        Width = 400
+        TabOrder = 0
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'Positionnement'
+      ClientHeight = 96
+      ClientWidth = 1037
+      object Label2: TLabel
+        Left = 16
+        Height = 15
+        Top = 20
+        Width = 54
+        Caption = 'Longitude'
+        ParentColor = False
+      end
+      object Edit2: TEdit
+        Left = 104
+        Height = 23
+        Top = 16
+        Width = 104
+        TabOrder = 0
+      end
+      object Edit3: TEdit
+        Left = 104
+        Height = 23
+        Top = 48
+        Width = 104
+        TabOrder = 1
+      end
+      object Label3: TLabel
+        Left = 16
+        Height = 15
+        Top = 52
+        Width = 43
+        Caption = 'Latitude'
+        ParentColor = False
+      end
+    end
+    object TabSheet3: TTabSheet
+      Caption = 'Historique'
+      ClientHeight = 96
+      ClientWidth = 1037
+      object Label4: TLabel
+        Left = 8
+        Height = 15
+        Top = 20
+        Width = 55
+        Caption = 'Historique'
+        ParentColor = False
+      end
+      object Memo1: TMemo
+        Left = 104
+        Height = 72
+        Top = 16
+        Width = 923
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        Font.CharSet = ANSI_CHARSET
+        Font.Color = clGray
+        Font.Pitch = fpVariable
+        Font.Quality = fqDraft
+        ParentFont = False
+        TabOrder = 0
+      end
+    end
+  end
+  object gbSelection: TGroupBox
+    Left = 4
+    Height = 527
+    Top = 92
+    Width = 256
+    Align = alLeft
+    BorderSpacing.Left = 4
+    Caption = 'Sélection'
+    ClientHeight = 507
+    ClientWidth = 252
+    TabOrder = 1
+    object ValueListEditor1: TValueListEditor
+      Left = 4
+      Height = 476
+      Top = 27
+      Width = 244
+      Align = alClient
+      AlternateColor = clDefault
+      AutoEdit = False
+      BorderSpacing.Left = 4
+      BorderSpacing.Top = 4
+      BorderSpacing.Right = 4
+      BorderSpacing.Bottom = 4
+      Color = clForm
+      DefaultColWidth = 48
+      FixedColor = clDefault
+      FixedCols = 0
+      RowCount = 2
+      ScrollBars = ssAutoVertical
+      TabOrder = 0
+      TitleStyle = tsNative
+      OnClick = ValueListEditor1Click
+      Options = [goColSizing, goRowSelect, goThumbTracking]
+      TitleCaptions.Strings = (
+        'Index'
+        'Nom'
+        'X'
+        'Y'
+      )
+      ColWidths = (
+        48
+        192
+      )
+    end
+    object ComboBox1: TComboBox
+      Left = 4
+      Height = 23
+      Top = 0
+      Width = 244
+      Align = alTop
+      BorderSpacing.Left = 4
+      BorderSpacing.Right = 4
+      DropDownCount = 11
+      ItemHeight = 15
+      OnChange = ComboBox1Change
+      Style = csDropDownList
+      TabOrder = 1
+    end
+  end
+  object Splitter1: TSplitter
+    Left = 260
+    Height = 527
+    Top = 92
+    Width = 5
+  end
+  object Splitter2: TSplitter
+    Cursor = crVSplit
+    Left = 0
+    Height = 5
+    Top = 619
+    Width = 1053
+    Align = alBottom
+    ResizeAnchor = akBottom
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Height = 23
+    Top = 748
+    Width = 1053
+    Panels = <>
+  end
+  object pgMenus: TPageControl
+    Left = 0
+    Height = 92
+    Top = 0
+    Width = 1053
+    ActivePage = tsFichiers
+    Align = alTop
+    HotTrack = True
+    TabIndex = 0
+    TabOrder = 5
+    object tsFichiers: TTabSheet
+      Caption = 'Fichiers'
+    end
+    object tsAccueil: TTabSheet
+      Caption = 'Accueil'
+    end
+    object tsCreation: TTabSheet
+      Caption = 'Création'
+    end
+    object tsAide: TTabSheet
+      Caption = 'Aide'
+    end
+  end
+  object pcMain: TPageControl
+    Left = 265
+    Height = 527
+    Top = 92
+    Width = 788
+    ActivePage = tsInfo
+    Align = alClient
+    HotTrack = True
+    TabIndex = 0
+    TabOrder = 6
+    TabPosition = tpBottom
+    object tsInfo: TTabSheet
+      Caption = 'Informations'
+      ClientHeight = 499
+      ClientWidth = 780
+      object hpInformations: TIpHtmlPanel
+        Left = 0
+        Height = 499
+        Top = 0
+        Width = 780
+        Align = alClient
+        FixedTypeface = 'Courier New'
+        DefaultTypeFace = 'default'
+        DefaultFontSize = 12
+        FlagErrors = False
+        PrintSettings.MarginLeft = 0.5
+        PrintSettings.MarginTop = 0.5
+        PrintSettings.MarginRight = 0.5
+        PrintSettings.MarginBottom = 0.5
+        PrintSettings.Preview.Left = 480
+        PrintSettings.Preview.Top = 270
+        PrintSettings.Preview.Width = 1440
+        PrintSettings.Preview.Height = 810
+        TabOrder = 0
+        OnHotClick = hpInformationsHotClick
+        OnHotURL = hpInformationsHotURL
+      end
+    end
+    object tsPosition: TTabSheet
+      Caption = 'Position'
+      ClientHeight = 499
+      ClientWidth = 780
+      object pbPosition: TPaintBox
+        Left = 0
+        Height = 499
+        Top = 0
+        Width = 780
+        Align = alClient
+        OnPaint = pbPositionPaint
+        OnResize = pbPositionResize
+      end
+    end
+    object tsMonde: TTabSheet
+      Caption = 'Monde'
+      ClientHeight = 499
+      ClientWidth = 780
+      object sbCarte: TScrollBox
+        Left = 0
+        Height = 499
+        Top = 0
+        Width = 780
+        HorzScrollBar.Increment = 76
+        HorzScrollBar.Page = 763
+        HorzScrollBar.Smooth = True
+        VertScrollBar.Increment = 48
+        VertScrollBar.Page = 482
+        VertScrollBar.Smooth = True
+        Align = alClient
+        BorderStyle = bsNone
+        ClientHeight = 482
+        ClientWidth = 763
+        TabOrder = 0
+        object imgMonde: TImage
+          Left = 0
+          Height = 4096
+          Top = 0
+          Width = 8192
+        end
+      end
+    end
+  end
+end
