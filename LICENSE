@@ -1,6 +1,7 @@
-Licence Publique Générale GNU
+**Licence Publique Générale GNU**
 
-Version 2, Juin 1991
+**Version 2, Juin 1991**
+
 Préambule
 
 Les licences de la plupart des logiciels sont conçues pour vous enlever toute liberté de les partager et de les modifier. A contrario, la Licence Publique Générale est destinée à garantir votre liberté de partager et de modifier les logiciels libres, et à assurer que ces logiciels soient libres pour tous leurs utilisateurs. La présente Licence Publique Générale s'applique à la plupart des logiciels de la Free Software Foundation, ainsi qu'à tout autre programme pour lequel ses auteurs s'engagent à l'utiliser. (Certains autres logiciels de la Free Software Foundation sont couverts par la GNU Lesser General Public License à la place.) Vous pouvez aussi l'appliquer aux programmes qui sont les vôtres.
@@ -129,4 +130,4 @@ Ty Coon, Président du Vice
 
 La présente Licence Publique Générale n'autorise pas l'incorporation de votre programme dans des programmes propriétaires. Si votre programme est une bibliothèque de sous-programmes, vous pouvez considérer plus utile d'autoriser l'édition de liens d'applications propriétaires avec la bibliothèque. Si c'est ce que vous voulez faire, utilisez la GNU Lesser General Public License au lieu de la présente Licence.
 
-Nous remercions le site april.org, pour avoir fait la traduction de la licence en Français.
+Nous remercions le site **april.org**, pour avoir fait la traduction de la licence en Français.
