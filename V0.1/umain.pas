@@ -14,10 +14,11 @@ uses
   ComCtrls,
   StdCtrls,
   ExtCtrls,
-  ValEdit,
   Buttons,
   fphttpclient,
   lcltype,
+  lclintf,
+  Grids,
   IpHtml,
   opensslsockets,
   fpjson,
@@ -62,6 +63,7 @@ type
     Splitter1: TSplitter;
     Splitter2: TSplitter;
     StatusBar1: TStatusBar;
+    StringGrid1: TStringGrid;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     TabSheet3: TTabSheet;
@@ -72,7 +74,6 @@ type
     tsCreation: TTabSheet;
     tsAide: TTabSheet;
     tsFichiers: TTabSheet;
-    ValueListEditor1: TValueListEditor;
     procedure ComboBox1Change(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -81,16 +82,15 @@ type
     procedure hpInformationsHotURL(Sender: TObject; const URL: String);
     procedure pbPositionPaint(Sender: TObject);
     procedure pbPositionResize(Sender: TObject);
-    procedure ValueListEditor1Click(Sender: TObject);
+    procedure StringGrid1Click(Sender: TObject);
+    procedure StringGrid1Resize(Sender: TObject);
   private
-    CX, CY: Cardinal;
-    PX, PY: Cardinal;
     FS: Single;
     FBMP: TBitmap;
     FLien: string;
     FMonde: array[0..HAUTEUR - 1, 0..LARGEUR - 1] of Byte;
     FCouleurs: TPalette;
-    procedure AffichePosition;
+    procedure AffichePosition(const ANom: string; const AX, AY: Integer);
     procedure AfficherMonde;
     procedure CreerPalette;
     procedure ChargerListes;
@@ -105,7 +105,6 @@ type
 
 var
   frmPrincipale: TfrmPrincipale;
-
 
 const
   RACINE_URL = 'http://www.atlaspolaris.com';
@@ -154,7 +153,8 @@ var
   LContenu: string;
   LFichier: string;
   LJson: TJSONData;
-  LItem: TJSONEnum;
+  LItem: TJSONData; // TJSONEnum;
+  i: integer;
 begin
   // On sort si aucune ligne est sélectionnée.
   if ComboBox1.ItemIndex = -1 then
@@ -164,10 +164,10 @@ begin
   LFichier := LowerCase(RACINE_URL + DOSSIER_API + SupprimerAccents(ComboBox1.Text) + '.json');
 
   // Efface la liste des élements contenu dans la ValueListEditor
-  ValueListEditor1.Clear;
+  StringGrid1.Clear;
 
   // Bloque le rafraichissement de la ValueListEditor.
-  ValueListEditor1.Strings.BeginUpdate;
+  StringGrid1.BeginUpdate;
 
   // Télécharge les données depuis le serveur
   LContenu := GetRequete(LFichier);
@@ -178,23 +178,33 @@ begin
     // Transfer le contenu reçu dans une structure JSON.
     LJson := GetJSON(LContenu);
 
-    // Parcours la liste des éléments JSON pour les afficher
-    for LItem in LJson do
-      ValueListEditor1.InsertRow(LItem.Value.Items[0].AsString, LItem.Value.Items[1].AsString, True);
+    StringGrid1.RowCount := {StringGrid1.FixedRows} 1 + LJson.Count;
+
+    // Parcours la liste des éléments JSON pour les afficher dansq la grille
+    for i := 0 to LJson.Count - 1 do
+    begin
+      LItem := LJSon.Items[i];
+
+      StringGrid1.Cells[0, 1 + i] := LItem.FindPath(TJSONObject(LItem).Names[0]).AsString;
+      StringGrid1.Cells[1, 1 + i] := LItem.FindPath(TJSONObject(LItem).Names[1]).AsString;
+      StringGrid1.Cells[2, 1 + i] := LItem.FindPath(TJSONObject(LItem).Names[2]).AsString;
+      StringGrid1.Cells[3, 1 + i] := LItem.FindPath(TJSONObject(LItem).Names[3]).AsString;
+      StringGrid1.Cells[4, 1 + i] := LItem.FindPath(TJSONObject(LItem).Names[4]).AsString;
+    end;
   finally
     // ATTENTION : Il n'y a pas de Create mais il faut un Free si on veux éviter les pertes de méoires.
     LJson.Free;
   end;
 
   // Débloque le rafraichissement de la ValueListEditor.
-  ValueListEditor1.Strings.EndUpdate;
+  StringGrid1.EndUpdate;
 
   // Ajoute un tri alphabêtique sur le noms
-  if ValueListEditor1.RowCount > 1 then
-    ValueListEditor1.Sort(1, 1, ValueListEditor1.RowCount -1);
+  if StringGrid1.RowCount > 1 then
+    StringGrid1.SortColRow(true, 1, 1, StringGrid1.RowCount -1);
 
   // Affiche le nombre d'éléments reçu.
-  gbSelection.Caption := IntToStr(ValueListEditor1.RowCount - 1) + ' ' + ComboBox1.Text;
+  gbSelection.Caption := IntToStr(StringGrid1.RowCount - 1) + ' ' + ComboBox1.Text;
 end;
 
 procedure TfrmPrincipale.FormCreate(Sender: TObject);
@@ -203,10 +213,6 @@ begin
   FBMP := TBitmap.Create;
   FBMP.PixelFormat := pf24bit;
   FBMP.SetSize(pbPosition.Width, pbPosition.Height);
-
-  // Défini la position centrale du point dans la PaintBox, par défaut, on prend celle de la carte.
-  CX := LARGEUR div 2;
-  CY := HAUTEUR div 2;
 
   // Initialise l'URL a télécharger
   FLien := '';
@@ -227,10 +233,6 @@ begin
   ImgMonde.Width  := LARGEUR;
   ImgMonde.Height := HAUTEUR;
 
-  // Défini le point en haut a gauche depuis la carte pour la PainBox.
-  PX := CX - (pbPosition.Width div 2);
-  PY := CY - (pbPosition.Height div 2);
-
   // Charger la liste des tébles.
   ChargerListes;
 
@@ -244,7 +246,7 @@ begin
   AfficherMonde;
 
   // Affiche la région dans la PaintBox.
-  AffichePosition;
+  AffichePosition('', -1, -1);
 
   // Centrer la Scrollbox.
   sbCarte.HorzScrollBar.Position := (LARGEUR - tsMonde.Width) div 2;
@@ -274,44 +276,109 @@ begin
 end;
 
 procedure TfrmPrincipale.pbPositionResize(Sender: TObject);
+var
+  R: integer;
 begin
-  // Défini le point en haut a gauche depuis la carte pour la PainBox.
-  PX := CX - (pbPosition.Width div 2);
-  PY := CY - (pbPosition.Height div 2);
+  // On mémorise la ligne sélectionné avec la souris.
+  R := StringGrid1.Row;
 
-  //Affiche la zone suite au rediomensionnement
-  AffichePosition;
+  // On recharge la position.
+  if R = 0 then
+    AffichePosition('', -1, -1)
+  else
+    AffichePosition(StringGrid1.Cells[1, R], StringGrid1.Cells[2, R].ToInteger, StringGrid1.Cells[3, R].ToInteger);
 
   // Forcer le rafraichissement de le la PaintBox.
   pbPosition.Invalidate;
 end;
 
-procedure TfrmPrincipale.ValueListEditor1Click(Sender: TObject);
+procedure TfrmPrincipale.StringGrid1Click(Sender: TObject);
+var
+  R: integer;
 begin
-  // Dergen - A compléter !
+  // On mémorise la ligne sélectionné avec la souris.
+  R := StringGrid1.Row;
+
+  // On sort si on a cliquer sur l'entête
+  if R = 0 then
+    Exit;
+
+  AffichePosition(StringGrid1.Cells[1, R], StringGrid1.Cells[2, R].ToInteger, StringGrid1.Cells[3, R].ToInteger);
+
+  // Forcer le rafraichissement de le la PaintBox.
+  pbPosition.Invalidate;
 end;
 
-procedure TfrmPrincipale.AffichePosition;
+procedure TfrmPrincipale.StringGrid1Resize(Sender: TObject);
+begin
+  StringGrid1.Columns[1].Width :=StringGrid1.ClientWidth - (StringGrid1.Columns[0].Width + StringGrid1.Columns[2].Width + StringGrid1.Columns[3].Width + StringGrid1.Columns[4].Width);
+end;
+
+procedure TfrmPrincipale.AffichePosition(const ANom: string; const AX, AY: Integer);
 var
   x, y: Cardinal;
+  CX, CY, PX, PY, MX, MY: integer;
   Ligne: PRGBTripleArr;
 begin
-  FBMP.BeginUpdate;
-
   // Modifie la taille de la Bitmap si besoin suite au redimensionnement de la fenêtre.
   if (FBMP.Width <>  pbPosition.Width) or (FBMP.Height <> pbPosition.Height) then
     FBMP.SetSize(pbPosition.Width, pbPosition.Height);
 
-  // Rempli le bitmap.
-  for y := 0 to FBMP.Height - 1 do
+  // On éfface la position si l'élément n'en a pas.
+  if (AX = -1) and (AY = -1) then
   begin
-    Ligne := PRGBTripleArr(FBMP.RawImage.GetLineStart(y));
+    // Efface la position
+    FBMP.Canvas.Brush.Color := clSkyBlue;
+    FBMP.Canvas.Brush.Style := bsSolid;
+    FBMP.Canvas.FillRect(0, 0, FBMP.Width, FBMP.Height);
+  end
+  else
+  begin
+    // Défini les coordonnées d'affichage de l'élément.
+    CX := Trunc(AX / FS);
+    CY := Trunc(AY / FS);
 
-    for x := 0 to FBMP.Width - 1 do
-      Ligne^[x] := FCouleurs[FMonde[PY + y, PX + x]];
+    // Calcul la le centre du PaintBox
+    MX := pbPosition.Width div 2;
+    MY := pbPosition.Height div 2;
+
+    // Défini le point en haut a gauche de la paintBox
+    PX := CX - MX;
+    PY := CY - MY;
+
+    // On Controle que la position reste dans la zone affichable
+    if PY < 0 then
+    begin
+      PY := 0;
+      MY := CY;
+    end;
+
+    if (PY + (FBMP.Height - 1) >= HAUTEUR) then
+    begin
+      PY := HAUTEUR - FBMP.Height;
+      MY := CY - PY;
+    end;
+
+    FBMP.BeginUpdate;
+
+    // Rempli le bitmap.
+    for y := 0 to FBMP.Height - 1 do
+    begin
+      Ligne := PRGBTripleArr(FBMP.RawImage.GetLineStart(y));
+
+      for x := 0 to FBMP.Width - 1 do
+        Ligne^[x] := FCouleurs[FMonde[PY + y, (LARGEUR + PX + x) mod LARGEUR]];
+    end;
+
+    FBMP.EndUpdate;
+
+    // Affiche le nom de l'élément
+    FBMP.Canvas.Brush.Color := clWhite;
+    FBMP.Canvas.Brush.Style := bsClear;
+    FBMP.Canvas.Pen.Width   := 2;
+    FBMP.Canvas.Pen.Color   := clRed;
+    FBMP.Canvas.Ellipse(MX - 5, MY - 5, MX + 5, MY + 5);
   end;
-
-  FBMP.EndUpdate;
 end;
 
 procedure TfrmPrincipale.AfficherMonde;
